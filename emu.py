@@ -15,6 +15,19 @@ from lxml import objectify
 def recursive_dict(element):
     return element.tag, dict(map(recursive_dict, element)) or element.text
 
+def ensureString(value):
+        # convert bytes (python 3) or unicode (python 2) to str
+    if str(type(value)) == "<class 'bytes'>":
+        # only possible in Python 3
+        value = value.decode('utf-8')  # or  s = str(s)[2:-1]
+    return value
+
+def ensureBytes(value):
+    # print(type(value))
+        # convert bytes (python 3) or unicode (python 2) to str
+    if str(type(value)) == "<class 'str'>":
+        value = bytes(value, 'utf-8')
+    return value
 
 class emu():
     obj_type = "emu_serial"
@@ -103,6 +116,7 @@ class emu():
     cmd_get_instantaneous_demand = "get_instantaneous_demand"
     cmd_get_time = "get_time"
     cmd_get_current_summation = "get_current_summation"
+    cmd_get_current_price = "get_current_price"
     cmd_set_current_price = "set_current_price"
     cmd_set_meter_info = "set_meter_info"
     cmd_get_message = "get_message"
@@ -454,11 +468,17 @@ class emu():
         print(self.write_buffer)
 
     def create_serial(self):
+        # print('create serial')
+        # print(self.environment)
         try:
             if self.environment == "osx":
                 self.ser = serial.Serial(
                     self.osx_prefix + str(self.port), self.baud_rate, timeout=self.timeout)
             elif self.environment == "linux":
+                # print('create serial linux')
+                # print(self.linux_prefix + str(self.port))
+                # print(self.baud_rate)
+                # print(self.timeout)
                 self.ser = serial.Serial(
                     self.linux_prefix + str(self.port), self.baud_rate, timeout=self.timeout)
             else:
@@ -482,7 +502,9 @@ class emu():
         print("Starting serial process for EMU on " + str(self.port))
         # inifinite loop
         try:
+            # print('gonna create serial')
             self.create_serial()
+            # print('created serial')
             while True:
                 if self.stop_thread is True:
                     self.ser.close()
@@ -503,7 +525,7 @@ class emu():
                             f.close()
                         except:
                             pass
-                        self.ser.write(self.write_buffer)
+                        self.ser.write(ensureBytes(self.write_buffer))
                         self.write_history(
                             'HOST', self.command_name.text, self.write_buffer, None)
                         self.write_buffer = None
@@ -520,6 +542,7 @@ class emu():
         self.stop_thread = True
 
     def parse_response(self, response):
+        # print(response)
         self.response = unicode(illegal_xml_re.sub('', response))
         self.reponse_root = etree.fromstring(self.response)
         for child in self.response:
@@ -532,7 +555,7 @@ class emu():
         # these are thetags that are possible
         for tag in self.responseRoots:
             tagToString = '<' + tag + '>'
-            if tagToString in line:
+            if tagToString.encode() in line:
                 start_tag = True
                 self.tag = tag
         return start_tag
@@ -543,24 +566,26 @@ class emu():
         # these are thetags that are possible
         tagToString = '</' + self.tag + '>'
         # checking if tag is in line
-        if tagToString in line:
+        if tagToString.encode() in line:
             end_tag = True
         return end_tag
 
     def serial_reader(self, line):
         # this function is reads the text
+
         self.start_flag = False
         if self.look_for_start_tag(line):
             self.tag_block = True
             self.start_flag = True
         if self.tag_block == True:
-            self.original_block = self.original_block + line
-            self.block_string = self.block_string + line.rstrip()
+            self.original_block = self.original_block + line.decode()
+            self.block_string = self.block_string + line.decode().rstrip()
         if self.look_for_end_tag(line):
             self.tag_block = False
             try:
                 self.block_to_tree(self.block_string, self.tag)
             except Exception as e:
+                print(line)
                 print(str(e))
                 print("XML ISSUE")
                 obj = dict()

@@ -1,0 +1,8 @@
+SELECT LAST(demand)/1000 as kwh,LAST(price) / 100 as price_per_kwh,LAST(demand)/1000 * (LAST(price) / 100)  as cents_per_hour FROM "home"."autogen"."instantaneous_demand", "home"."autogen"."price_cluster" WHERE time > now() - 1h GROUP BY time(10s)  FILL(previous)
+SELECT MEDIAN(demand)/1000 as kwh,LAST(price) / 100 as price_per_kwh,(MEDIAN(demand)/1000) * (LAST(price) / 100)  as cents_per_hour FROM "home"."autogen"."instantaneous_demand", "home"."autogen"."price_cluster" WHERE time > now() - 1h GROUP BY time(10s)  FILL(previous)
+
+
+
+SELECT MEDIAN("demand")/MEDIAN("divisor")*MEDIAN("MULTIPLIER") AS "kwh" FROM "home"."autogen"."instantaneous_demand" WHERE time > now() - 1h GROUP BY time(10s) FILL(null)
+
+SELECT LAST("demand")/LAST("divisor")*LAST("multiplier") AS "kwh" FROM "home"."autogen"."instantaneous_demand" WHERE time > now() - 1h GROUP BY time(10s) FILL(null)

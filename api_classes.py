@@ -10,8 +10,8 @@ class MessageCluster():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return  self.xml_tree
-        
-        
+
+
 class TimeCluster():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -19,13 +19,13 @@ class TimeCluster():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-    
+
 class InstantaneousDemand():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
         for element in xml_tree.iterchildren():
             setattr(self, element.tag, element.text)
-    
+
 class NetworkInfo():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -34,7 +34,15 @@ class NetworkInfo():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-    
+
+class FastPollStatus():
+    def __init__(self, xml_tree,block_string):
+        self.block_string = block_string
+        for element in xml_tree.iterchildren():
+            setattr(self, element.tag, element.text)
+    def __repr__(self):
+        return self.block_string
+
 class PriceCluster():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -42,7 +50,7 @@ class PriceCluster():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-    
+
 class DeviceInfo():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -50,7 +58,7 @@ class DeviceInfo():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-    
+
 class CurrentSummationDelivered():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -58,7 +66,7 @@ class CurrentSummationDelivered():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-    
+
 class ScheduleInfo():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -66,7 +74,7 @@ class ScheduleInfo():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-    
+
 class BlockPriceDetail():
     def __init__(self, xml_tree,block_string):
         self.block_string = block_string
@@ -82,4 +90,3 @@ class ConnectionStatus():
             setattr(self, element.tag, element.text)
     def __repr__(self):
         return self.block_string
-        
